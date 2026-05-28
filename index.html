@@ -43,7 +43,12 @@
       "name": "Encuesta Presidencial Colombia 2026",
       "url": "%VITE_SITE_URL%",
       "description": "Encuesta informal de opinión presidencial para las elecciones de Colombia 2026.",
-      "inLanguage": "es-CO"
+      "inLanguage": "es-CO",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "%VITE_SITE_URL%/resultados",
+        "query-input": "required name=search_term_string"
+      }
     }
     </script>
 
@@ -68,6 +73,26 @@
     }
     </script>
 
+    <!-- Schema.org: Poll / SurveyAction -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SurveyAction",
+      "name": "Encuesta presidencial informal Colombia 2026",
+      "description": "Encuesta de opinión ciudadana sobre los candidatos a la presidencia de Colombia en 2026.",
+      "url": "%VITE_SITE_URL%",
+      "agent": {
+        "@type": "Person",
+        "name": "Sebastian Buitrago"
+      },
+      "result": {
+        "@type": "CreativeWork",
+        "name": "Resultados encuesta presidencial Colombia 2026",
+        "url": "%VITE_SITE_URL%/resultados"
+      }
+    }
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
@@ -75,6 +100,20 @@
   </head>
   <body>
     <div id="app"></div>
+    <noscript>
+      <main style="font-family:sans-serif;max-width:640px;margin:2rem auto;padding:1rem">
+        <h1>Encuesta Presidencial Colombia 2026</h1>
+        <p>
+          Participa en la encuesta informal de opinión presidencial para las elecciones de Colombia 2026.
+          Vota por tu candidato favorito entre Claudia López, Sergio Fajardo, Carlos Caicedo y más,
+          y consulta los resultados en tiempo real.
+        </p>
+        <p>
+          Esta es una encuesta ciudadana informal. No es una votación oficial ni un sondeo registrado ante el CNE.
+        </p>
+        <p><a href="/resultados">Ver resultados</a></p>
+      </main>
+    </noscript>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
