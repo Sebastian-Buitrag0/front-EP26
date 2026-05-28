@@ -26,8 +26,15 @@
         <!-- Verificando con backend -->
         <template v-if="checking">
           <div class="flex flex-col items-center py-8 gap-4">
-            <div class="rounded-full h-8 w-8 border-[3px] border-colombia-blue border-t-transparent animate-spin" />
-            <p class="text-sm" style="color: var(--c-text-muted)">Verificando tu cuenta...</p>
+            <template v-if="alreadyVoted">
+              <p class="text-3xl" aria-hidden="true">✅</p>
+              <p class="text-base font-bold text-center" style="color: var(--c-text)">Ya votaste con esta cuenta</p>
+              <p class="text-sm text-center" style="color: var(--c-text-muted)">Llevándote a los resultados...</p>
+            </template>
+            <template v-else>
+              <div class="rounded-full h-8 w-8 border-[3px] border-colombia-blue border-t-transparent animate-spin" />
+              <p class="text-sm" style="color: var(--c-text-muted)">Verificando tu cuenta...</p>
+            </template>
           </div>
         </template>
 
@@ -227,6 +234,7 @@ const error = ref('')
 const voteDone = ref(false)
 const isHonoraryResult = ref(false)
 const copied = ref(false)
+const alreadyVoted = ref(false)
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
@@ -323,6 +331,8 @@ async function onGoogleSuccess(response: { credential: string }) {
     const { data } = await axios.post(`${API_URL}/api/votes/check`, { idToken: response.credential })
     if (data.hasVoted) {
       voteStore.markVoted()
+      alreadyVoted.value = true
+      await new Promise(r => setTimeout(r, 1800))
       router.push('/resultados')
       return
     }
