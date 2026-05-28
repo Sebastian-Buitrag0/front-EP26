@@ -205,6 +205,10 @@ async function closeModal() {
 }
 
 function onGoogleSuccess(response: { credential: string }) {
+  if (voteStore.hasVoted) {
+    router.push('/resultados')
+    return
+  }
   idToken.value = response.credential
 }
 
@@ -219,9 +223,12 @@ async function confirm() {
     router.push({ path: '/resultados', query: result.isHonorary ? { honorario: '1' } : {} })
   } catch (e: any) {
     const status = e?.response?.status
-    error.value = status === 409
-      ? (e?.response?.data?.message ?? 'Ya registraste tu voto.')
-      : 'Ocurrió un error. Intenta de nuevo.'
+    if (status === 409) {
+      voteStore.markVoted()
+      router.push('/resultados')
+    } else {
+      error.value = 'Ocurrió un error. Intenta de nuevo.'
+    }
   } finally {
     loading.value = false
   }
