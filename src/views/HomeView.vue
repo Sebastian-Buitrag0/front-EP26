@@ -1,6 +1,6 @@
 <template>
   <div class="max-w-5xl mx-auto px-4 sm:px-6 py-10">
-    <div class="text-center mb-10">
+    <div ref="heroRef" class="text-center mb-10">
       <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2" style="color: var(--c-text)">
         ¿Por quién votarías en 2026?
       </h1>
@@ -20,7 +20,7 @@
       {{ error }}
     </p>
 
-    <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+    <div v-else ref="gridRef" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
       <CandidateCard
         v-for="c in candidates"
         :key="c.id"
@@ -39,8 +39,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import axios from 'axios'
+import { gsap } from 'gsap'
 import CandidateCard from '@/components/CandidateCard.vue'
 import VoteModal from '@/components/VoteModal.vue'
 import type { Candidate } from '@/stores/vote'
@@ -52,7 +53,16 @@ const modalCandidate = ref<Candidate | null>(null)
 const loading = ref(true)
 const error = ref('')
 
+const heroRef = ref<HTMLElement | null>(null)
+const gridRef = ref<HTMLElement | null>(null)
+
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
 onMounted(async () => {
+  if (!reduced && heroRef.value) {
+    gsap.from(heroRef.value, { y: 16, opacity: 0, duration: 0.55, ease: 'power3.out' })
+  }
+
   try {
     const { data } = await axios.get<Candidate[]>(`${API_URL}/api/candidates`)
     candidates.value = data
@@ -60,6 +70,18 @@ onMounted(async () => {
     error.value = 'No se pudieron cargar los candidatos. Intenta más tarde.'
   } finally {
     loading.value = false
+  }
+
+  await nextTick()
+
+  if (!reduced && gridRef.value?.children.length) {
+    gsap.from(Array.from(gridRef.value.children), {
+      y: 28,
+      opacity: 0,
+      duration: 0.45,
+      stagger: 0.06,
+      ease: 'power3.out',
+    })
   }
 })
 

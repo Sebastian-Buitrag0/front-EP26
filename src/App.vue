@@ -38,6 +38,10 @@
         Ley 1581 de 2012
         <span class="mx-2 opacity-30">·</span>
         Colombia 2026
+        <span class="mx-2 opacity-30">·</span>
+        <a href="https://github.com/Sebastian-Buitrag0" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors underline underline-offset-2">
+          GitHub de Sebastian
+        </a>
       </p>
     </footer>
   </div>

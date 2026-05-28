@@ -1,14 +1,16 @@
 <template>
   <Teleport to="body">
     <div
+      ref="backdropRef"
       class="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-0 sm:px-4"
       style="background: rgba(0,0,0,0.55); backdrop-filter: blur(2px)"
-      @click.self="$emit('close')"
+      @click.self="closeModal"
       role="dialog"
       aria-modal="true"
       :aria-label="`Votar por ${candidate.name}`"
     >
       <div
+        ref="panelRef"
         class="bg-card w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl p-6 sm:p-7 shadow-2xl"
         style="border-top: 1px solid var(--c-border)"
       >
@@ -32,7 +34,7 @@
           </p>
           <GoogleLogin :callback="onGoogleSuccess" class="flex justify-center" />
           <button
-            @click="$emit('close')"
+            @click="closeModal"
             class="mt-4 w-full text-sm py-2 rounded-xl transition-colors duration-150"
             style="color: var(--c-text-muted)"
           >
@@ -41,7 +43,7 @@
         </template>
 
         <!-- Paso 2: Fecha + consentimiento -->
-        <template v-else>
+        <div v-else ref="step2Ref">
           <p class="text-xs font-semibold uppercase tracking-widest mb-1" style="color: var(--c-text-muted)">Paso 2 de 2</p>
           <h3 class="text-xl font-extrabold mb-1" style="color: var(--c-text)">Confirmar voto</h3>
           <p class="text-sm mb-5" style="color: var(--c-blue); font-weight: 600">
@@ -117,22 +119,23 @@
             <span v-else>Confirmar mi voto</span>
           </button>
           <button
-            @click="$emit('close')"
+            @click="closeModal"
             class="mt-3 w-full text-sm py-2 rounded-xl transition-colors"
             style="color: var(--c-text-muted)"
           >
             Cancelar
           </button>
-        </template>
+        </div>
       </div>
     </div>
   </Teleport>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { GoogleLogin } from 'vue3-google-login'
+import { gsap } from 'gsap'
 import { submitVote } from '@/composables/useVote'
 import type { Candidate } from '@/stores/vote'
 
@@ -140,11 +143,17 @@ const props = defineProps<{ candidate: Candidate }>()
 const emit = defineEmits<{ close: []; voted: [] }>()
 const router = useRouter()
 
+const backdropRef = ref<HTMLElement | null>(null)
+const panelRef = ref<HTMLElement | null>(null)
+const step2Ref = ref<HTMLElement | null>(null)
+
 const idToken = ref<string | null>(null)
 const birthDate = ref('')
 const consented = ref(false)
 const loading = ref(false)
 const error = ref('')
+
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 const today = new Date()
 const maxDate = new Date(today.getFullYear() - 5, today.getMonth(), today.getDate())
@@ -168,6 +177,30 @@ const ageLabel = computed(() => {
   if (isMinor.value) return `Voto honorario — ${age.value} años. Tu voz también cuenta.`
   return `Voto válido — ${age.value} años`
 })
+
+onMounted(() => {
+  if (reduced) return
+  gsap.from(backdropRef.value, { opacity: 0, duration: 0.25 })
+  gsap.from(panelRef.value, { y: 52, opacity: 0, duration: 0.38, ease: 'power3.out', delay: 0.05 })
+})
+
+watch(idToken, async (val) => {
+  if (!val || reduced) return
+  await nextTick()
+  if (step2Ref.value) {
+    gsap.from(step2Ref.value, { y: 18, opacity: 0, duration: 0.32, ease: 'power2.out' })
+  }
+})
+
+async function closeModal() {
+  if (!reduced && panelRef.value && backdropRef.value) {
+    await Promise.all([
+      gsap.to(panelRef.value, { y: 36, opacity: 0, duration: 0.22, ease: 'power2.in' }),
+      gsap.to(backdropRef.value, { opacity: 0, duration: 0.28, delay: 0.04 }),
+    ])
+  }
+  emit('close')
+}
 
 function onGoogleSuccess(response: { credential: string }) {
   idToken.value = response.credential

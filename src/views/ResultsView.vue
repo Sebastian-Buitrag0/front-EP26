@@ -17,11 +17,17 @@
     </div>
 
     <div class="text-center mb-10">
-      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-1" style="color: var(--c-text)">
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight mb-2" style="color: var(--c-text)">
         Resultados en tiempo real
       </h1>
-      <p class="text-sm" style="color: var(--c-text-muted)">
-        Actualización automática cada 10 segundos
+      <p class="text-sm flex items-center justify-center gap-2" style="color: var(--c-text-muted)">
+        <span
+          class="inline-block w-2 h-2 rounded-full transition-colors duration-500"
+          :style="connected
+            ? 'background: oklch(58% 0.17 145); box-shadow: 0 0 0 3px oklch(90% 0.08 145)'
+            : 'background: var(--c-border)'"
+        />
+        {{ connected ? 'En vivo' : 'Conectando...' }}
       </p>
     </div>
 
@@ -111,6 +117,7 @@
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import axios from 'axios'
+import * as signalR from '@microsoft/signalr'
 import ResultsBar from '@/components/ResultsBar.vue'
 
 interface ResultItem {
@@ -132,22 +139,43 @@ const API_URL = import.meta.env.VITE_API_URL ?? ''
 const route = useRoute()
 const summary = ref<Summary | null>(null)
 const loading = ref(true)
-let interval: ReturnType<typeof setInterval>
+const connected = ref(false)
 
 const justVotedHonorary = computed(() => route.query.honorario === '1')
 
-async function fetchResults() {
+let connection: signalR.HubConnection
+
+onMounted(async () => {
+  // Carga inicial por HTTP
   try {
     const { data } = await axios.get<Summary>(`${API_URL}/api/votes/results`)
     summary.value = data
   } finally {
     loading.value = false
   }
-}
 
-onMounted(() => {
-  fetchResults()
-  interval = setInterval(fetchResults, 10_000)
+  // Conexión WebSocket para actualizaciones en vivo
+  connection = new signalR.HubConnectionBuilder()
+    .withUrl(`${API_URL}/hubs/results`)
+    .withAutomaticReconnect()
+    .build()
+
+  connection.on('ResultsUpdated', (data: Summary) => {
+    summary.value = data
+  })
+
+  connection.onreconnected(() => { connected.value = true })
+  connection.onclose(() => { connected.value = false })
+
+  try {
+    await connection.start()
+    connected.value = true
+  } catch {
+    // Silencioso — los resultados ya están cargados por HTTP
+  }
 })
-onUnmounted(() => clearInterval(interval))
+
+onUnmounted(() => {
+  connection?.stop()
+})
 </script>
