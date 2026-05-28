@@ -10,24 +10,15 @@ export interface Candidate {
   vicePresident?: string
 }
 
+const VOTED_KEY = 'ep26_voted'
+
 export const useVoteStore = defineStore('vote', () => {
-  const hasVoted = ref(false)
-  const selectedCandidate = ref<Candidate | null>(null)
-  const googleIdToken = ref<string | null>(null)
-
-  function setGoogleToken(token: string) {
-    googleIdToken.value = token
-  }
-
-  function selectCandidate(candidate: Candidate) {
-    selectedCandidate.value = candidate
-  }
+  const hasVoted = ref(localStorage.getItem(VOTED_KEY) === '1')
 
   function markVoted() {
     hasVoted.value = true
-    selectedCandidate.value = null
-    googleIdToken.value = null
+    localStorage.setItem(VOTED_KEY, '1')
   }
 
-  return { hasVoted, selectedCandidate, googleIdToken, setGoogleToken, selectCandidate, markVoted }
+  return { hasVoted, markVoted }
 })

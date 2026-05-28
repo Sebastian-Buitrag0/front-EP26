@@ -137,11 +137,13 @@ import { RouterLink, useRouter } from 'vue-router'
 import { GoogleLogin } from 'vue3-google-login'
 import { gsap } from 'gsap'
 import { submitVote } from '@/composables/useVote'
+import { useVoteStore } from '@/stores/vote'
 import type { Candidate } from '@/stores/vote'
 
 const props = defineProps<{ candidate: Candidate }>()
 const emit = defineEmits<{ close: []; voted: [] }>()
 const router = useRouter()
+const voteStore = useVoteStore()
 
 const backdropRef = ref<HTMLElement | null>(null)
 const panelRef = ref<HTMLElement | null>(null)
@@ -212,6 +214,7 @@ async function confirm() {
   error.value = ''
   try {
     const result = await submitVote(idToken.value, props.candidate.id, birthDate.value)
+    voteStore.markVoted()
     emit('voted')
     router.push({ path: '/resultados', query: result.isHonorary ? { honorario: '1' } : {} })
   } catch (e: any) {
