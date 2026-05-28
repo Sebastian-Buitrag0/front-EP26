@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --c-blue:        oklch(24% 0.09 252);
+  --c-blue-dark:   oklch(18% 0.07 252);
+  --c-yellow:      oklch(87% 0.17 87);
+  --c-yellow-bg:   oklch(97% 0.025 87);
+  --c-red:         oklch(40% 0.18 25);
+  --c-surface:     oklch(97.5% 0.006 252);
+  --c-card:        oklch(99.5% 0.003 252);
+  --c-border:      oklch(89% 0.012 252);
+  --c-text:        oklch(17% 0.012 252);
+  --c-text-muted:  oklch(50% 0.018 252);
+  --c-footer:      oklch(19% 0.02 252);
+}
+
+@layer base {
+  body {
+    background-color: var(--c-surface);
+    color: var(--c-text);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--c-blue);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
