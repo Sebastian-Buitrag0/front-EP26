@@ -51,6 +51,27 @@
       @close="modalCandidate = null"
       @voted="modalCandidate = null"
     />
+
+    <!-- Contexto electoral: visible para Google y usuarios -->
+    <section class="mt-14 pt-10 border-t" style="border-color: var(--c-border)">
+      <h2 class="text-lg font-bold mb-3" style="color: var(--c-text)">
+        Elecciones presidenciales Colombia 2026
+      </h2>
+      <p class="text-sm leading-relaxed mb-4" style="color: var(--c-text-muted)">
+        La primera vuelta de las elecciones presidenciales de Colombia 2026 se realizará el
+        <strong>31 de mayo de 2026</strong>. Si ningún candidato supera el 50 % de los votos,
+        habrá segunda vuelta el <strong>28 de junio de 2026</strong>.
+      </p>
+      <p class="text-sm leading-relaxed mb-4" style="color: var(--c-text-muted)">
+        Esta encuesta informal de opinión ciudadana te permite votar por tu candidato presidencial
+        favorito y ver los resultados en tiempo real. Participan candidatos como
+        <strong>Claudia López</strong>, <strong>Sergio Fajardo</strong>,
+        <strong>Carlos Caicedo</strong> y otros aspirantes a la presidencia de Colombia.
+      </p>
+      <p class="text-xs" style="color: var(--c-text-muted); opacity: 0.6">
+        Encuesta informal · No es una votación oficial · No está registrada ante el CNE
+      </p>
+    </section>
   </div>
 </template>
 
