@@ -5,7 +5,7 @@
   >
     <div class="aspect-[4/5] overflow-hidden" style="background: var(--c-surface)">
       <img
-        :src="candidate.photoUrl || '/placeholder.svg'"
+        :src="photoSrc"
         :alt="candidate.name"
         loading="lazy"
         class="w-full h-full object-cover object-top transition-transform duration-300 ease-out group-hover:scale-[1.03]"
@@ -47,6 +47,12 @@ import type { Candidate } from '@/stores/vote'
 
 const props = defineProps<{ candidate: Candidate }>()
 defineEmits<{ vote: [candidate: Candidate] }>()
+
+const API_URL = import.meta.env.VITE_API_URL ?? ''
+
+const photoSrc = computed(() =>
+  props.candidate.photoUrl ? `${API_URL}${props.candidate.photoUrl}` : '/placeholder.svg'
+)
 
 const firstName = computed(() => props.candidate.name.split(' ')[0])
 
