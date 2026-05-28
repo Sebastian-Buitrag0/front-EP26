@@ -1,6 +1,29 @@
 <template>
   <div class="max-w-2xl mx-auto px-4 sm:px-6 py-10">
 
+    <!-- Bloqueo: no ha votado -->
+    <div
+      v-if="!hasVoted"
+      class="text-center py-20"
+    >
+      <p class="text-5xl mb-6" aria-hidden="true">🗳️</p>
+      <h2 class="text-2xl font-extrabold mb-3" style="color: var(--c-text)">
+        Primero debes votar
+      </h2>
+      <p class="text-sm mb-8 max-w-xs mx-auto" style="color: var(--c-text-muted)">
+        Los resultados solo están disponibles para quienes ya participaron en la encuesta.
+      </p>
+      <RouterLink
+        to="/"
+        class="inline-block px-6 py-3 rounded-xl font-bold text-sm text-white transition-colors"
+        style="background: var(--c-blue)"
+      >
+        Ir a votar →
+      </RouterLink>
+    </div>
+
+    <template v-else>
+
     <!-- Banner voto honorario -->
     <div
       v-if="justVotedHonorary"
@@ -110,6 +133,8 @@
         ← Volver a votar
       </RouterLink>
     </div>
+
+    </template>
   </div>
 </template>
 
@@ -119,6 +144,7 @@ import { RouterLink, useRoute } from 'vue-router'
 import axios from 'axios'
 import * as signalR from '@microsoft/signalr'
 import ResultsBar from '@/components/ResultsBar.vue'
+import { useVoteStore } from '@/stores/vote'
 
 interface ResultItem {
   candidateId: number
@@ -137,6 +163,8 @@ interface Summary {
 
 const API_URL = import.meta.env.VITE_API_URL ?? ''
 const route = useRoute()
+const voteStore = useVoteStore()
+const hasVoted = computed(() => voteStore.hasVoted)
 const summary = ref<Summary | null>(null)
 const loading = ref(true)
 const connected = ref(false)
@@ -146,6 +174,11 @@ const justVotedHonorary = computed(() => route.query.honorario === '1')
 let connection: signalR.HubConnection
 
 onMounted(async () => {
+  if (!voteStore.hasVoted) {
+    loading.value = false
+    return
+  }
+
   // Carga inicial por HTTP
   try {
     const { data } = await axios.get<Summary>(`${API_URL}/api/votes/results`)
