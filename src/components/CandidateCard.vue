@@ -5,11 +5,11 @@
   >
     <div class="aspect-[4/5] overflow-hidden" style="background: var(--c-surface)">
       <img
-        :src="candidate.photoUrl || '/placeholder.png'"
+        :src="candidate.photoUrl || '/placeholder.svg'"
         :alt="candidate.name"
         loading="lazy"
         class="w-full h-full object-cover object-top transition-transform duration-300 ease-out group-hover:scale-[1.03]"
-        @error="(e) => ((e.target as HTMLImageElement).src = '/placeholder.png')"
+        @error="(e) => { const img = e.target as HTMLImageElement; if (!img.src.endsWith('/placeholder.svg')) img.src = '/placeholder.svg' }"
       />
     </div>
 
