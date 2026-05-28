@@ -35,6 +35,12 @@ const router = createRouter({
   ],
 })
 
+router.beforeEach((to) => {
+  if (to.path === '/resultados' && localStorage.getItem('ep26_voted') !== '1') {
+    return '/'
+  }
+})
+
 router.afterEach((to) => {
   const { title, description } = to.meta as { title?: string; description?: string }
   const url = `${SITE}${to.path}`
