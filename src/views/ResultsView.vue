@@ -124,13 +124,15 @@
 
     </template>
 
-    <div class="text-center mt-12">
+    <SharePanel />
+
+    <div class="text-center mt-10">
       <RouterLink
         to="/"
         class="text-sm font-medium underline underline-offset-2 transition-opacity hover:opacity-70"
         style="color: var(--c-blue)"
       >
-        ← Volver a votar
+        ← Volver al inicio
       </RouterLink>
     </div>
 
@@ -144,6 +146,7 @@ import { RouterLink, useRoute } from 'vue-router'
 import axios from 'axios'
 import * as signalR from '@microsoft/signalr'
 import ResultsBar from '@/components/ResultsBar.vue'
+import SharePanel from '@/components/SharePanel.vue'
 import { useVoteStore } from '@/stores/vote'
 
 interface ResultItem {

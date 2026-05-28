@@ -10,19 +10,21 @@
     </div>
 
     <!-- Banner ya votó -->
-    <div
-      v-if="voteStore.hasVoted"
-      class="rounded-2xl px-5 py-4 mb-8 text-center"
-      style="background: oklch(96% 0.02 150)"
-      role="status"
-    >
-      <p class="font-bold text-base" style="color: oklch(30% 0.08 150)">Ya registraste tu voto</p>
-      <p class="text-sm mt-1" style="color: oklch(42% 0.06 150)">
-        Solo se permite un voto por persona.
-        <RouterLink to="/resultados" class="underline underline-offset-2 font-medium" style="color: var(--c-blue)">
-          Ver resultados →
-        </RouterLink>
-      </p>
+    <div v-if="voteStore.hasVoted" class="mb-8">
+      <div
+        class="rounded-2xl px-5 py-4 text-center mb-4"
+        style="background: oklch(96% 0.02 150)"
+        role="status"
+      >
+        <p class="font-bold text-base" style="color: oklch(30% 0.08 150)">Ya registraste tu voto</p>
+        <p class="text-sm mt-1" style="color: oklch(42% 0.06 150)">
+          Solo se permite un voto por persona.
+          <RouterLink to="/resultados" class="underline underline-offset-2 font-medium" style="color: var(--c-blue)">
+            Ver resultados →
+          </RouterLink>
+        </p>
+      </div>
+      <SharePanel />
     </div>
 
     <div v-if="loading" class="flex justify-center py-24" aria-label="Cargando candidatos">
@@ -82,6 +84,7 @@ import axios from 'axios'
 import { gsap } from 'gsap'
 import CandidateCard from '@/components/CandidateCard.vue'
 import VoteModal from '@/components/VoteModal.vue'
+import SharePanel from '@/components/SharePanel.vue'
 import { useVoteStore } from '@/stores/vote'
 import type { Candidate } from '@/stores/vote'
 
