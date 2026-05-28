@@ -21,8 +21,16 @@
             :style="{ background: idToken ? 'var(--c-blue)' : 'var(--c-border)' }" />
         </div>
 
+        <!-- Verificando con backend -->
+        <template v-if="checking">
+          <div class="flex flex-col items-center py-8 gap-4">
+            <div class="rounded-full h-8 w-8 border-[3px] border-colombia-blue border-t-transparent animate-spin" />
+            <p class="text-sm" style="color: var(--c-text-muted)">Verificando tu cuenta...</p>
+          </div>
+        </template>
+
         <!-- Paso 1: Google Login -->
-        <template v-if="!idToken">
+        <template v-else-if="!idToken">
           <p class="text-xs font-semibold uppercase tracking-widest mb-1" style="color: var(--c-text-muted)">Paso 1 de 2</p>
           <h3 class="text-xl font-extrabold mb-1" style="color: var(--c-text)">Verificar identidad</h3>
           <p class="text-sm mb-1" style="color: var(--c-text-muted)">
@@ -136,9 +144,12 @@ import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import { GoogleLogin } from 'vue3-google-login'
 import { gsap } from 'gsap'
+import axios from 'axios'
 import { submitVote } from '@/composables/useVote'
 import { useVoteStore } from '@/stores/vote'
 import type { Candidate } from '@/stores/vote'
+
+const API_URL = import.meta.env.VITE_API_URL ?? ''
 
 const props = defineProps<{ candidate: Candidate }>()
 const emit = defineEmits<{ close: []; voted: [] }>()
@@ -153,6 +164,7 @@ const idToken = ref<string | null>(null)
 const birthDate = ref('')
 const consented = ref(false)
 const loading = ref(false)
+const checking = ref(false)
 const error = ref('')
 
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -204,11 +216,26 @@ async function closeModal() {
   emit('close')
 }
 
-function onGoogleSuccess(response: { credential: string }) {
+async function onGoogleSuccess(response: { credential: string }) {
   if (voteStore.hasVoted) {
     router.push('/resultados')
     return
   }
+
+  checking.value = true
+  try {
+    const { data } = await axios.post(`${API_URL}/api/votes/check`, { idToken: response.credential })
+    if (data.hasVoted) {
+      voteStore.markVoted()
+      router.push('/resultados')
+      return
+    }
+  } catch {
+    // Si falla el check, dejamos pasar al paso 2 igual
+  } finally {
+    checking.value = false
+  }
+
   idToken.value = response.credential
 }
 
